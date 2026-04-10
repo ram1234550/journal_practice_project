@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора — Journal</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body { background: #f0f2f5; }
+        .top-nav {
+            background: #1a1a2e; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 60px; position: sticky; top: 0; z-index: 100;
+        }
+        .top-nav .logo { color: #e94560; font-size: 1.3rem; font-weight: 800; text-decoration: none; }
+        .top-nav .user-info { color: #ccc; font-size: 0.9rem; display: flex; align-items: center; gap: 1rem; }
+        .top-nav .logout-btn { color: #e94560; cursor: pointer; font-weight: 600; background: none; border: none; font-size: 0.9rem; }
+        .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 60px); }
+        .sidebar { background: #1a1a2e; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+        .sidebar .user-block { text-align: center; padding-bottom: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .avatar { width: 56px; height: 56px; border-radius: 50%; background: #e94560; color: white; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
+        .sidebar .user-name { color: white; font-weight: 600; font-size: 0.95rem; }
+        .sidebar .user-role { color: #f59e0b; font-size: 0.8rem; margin-top: 0.2rem; font-weight: 600; }
+        .sidebar .menu-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 1rem; color: #aaa; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; background: none; width: 100%; font-size: 0.9rem; transition: all 0.2s; }
+        .sidebar .menu-item:hover { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar .menu-item.active { background: #e94560; color: white; }
+        .sidebar .menu-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+        .sidebar .logout-item { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logout-item .menu-item { color: #e94560; }
+        .sidebar .logout-item .menu-item:hover { background: rgba(233,69,96,0.15); }
+        .main { padding: 2rem; overflow-y: auto; }
+        .main h2 { color: #1a1a2e; margin-bottom: 1.5rem; font-size: 1.4rem; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; border-radius: 12px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .stat-icon.yellow { background: #fef3c7; }
+        .stat-icon.blue { background: #dbeafe; }
+        .stat-icon.green { background: #dcfce7; }
+        .stat-info .number { font-size: 1.6rem; font-weight: 700; color: #1a1a2e; }
+        .stat-info .label { color: #888; font-size: 0.8rem; }
+        .article-item { background: white; border-radius: 12px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 1rem; border-left: 4px solid #f59e0b; }
+        .article-item-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
+        .article-item h3 { color: #1a1a2e; font-size: 1rem; }
+        .article-meta { color: #888; font-size: 0.85rem; margin-bottom: 0.8rem; }
+        .badge { padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .btn { padding: 0.65rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+        .btn-primary { background: #e94560; color: white; }
+        .btn-primary:hover { background: #c73652; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 2rem; border-radius: 16px; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h3 { margin-bottom: 1rem; color: #1a1a2e; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #333; font-size: 0.9rem; }
+        .form-group select { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; }
+        .form-group select:focus { outline: none; border-color: #e94560; }
+        .modal-actions { display: flex; gap: 1rem; }
+        .btn-secondary { background: transparent; color: #e94560; border: 2px solid #e94560; }
+        .btn-secondary:hover { background: #e94560; color: white; }
+        .empty-state { text-align: center; padding: 3rem; color: #888; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <a href="../published.html" class="logo">📰 Journal</a>
+    <div class="user-info">
+        Привет, <span id="userName" style="color:white; font-weight:600;"></span>
+        <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+</nav>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="user-block">
+            <div class="avatar">A</div>
+            <div class="user-name" id="sidebarName"></div>
+            <div class="user-role">⚙️ Администратор</div>
+        </div>
+
+        <button class="menu-item active" id="btn-pending" onclick="showSection('pending')">
+            <span class="icon">📥</span> Входящие статьи
+        </button>
+        <a href="../published.html" class="menu-item">
+            <span class="icon">🌐</span> Все публикации
+        </a>
+
+        <div class="logout-item">
+            <button class="menu-item" onclick="logout()">
+                <span class="icon">🚪</span> Выйти
+            </button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div id="pending">
+            <h2>📥 Входящие статьи</h2>
+
+            <!-- Статистика -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon yellow">⏳</div>
+                    <div class="stat-info">
+                        <div class="number" id="statPending">0</div>
+                        <div class="label">Ожидают проверки</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔍</div>
+                    <div class="stat-info">
+                        <div class="number" id="statReview">0</div>
+                        <div class="label">На рецензировании</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <div class="number" id="statPublished">0</div>
+                        <div class="label">Опубликовано</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pendingList"><p style="color:#888;">Загрузка...</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно -->
+<div class="modal-overlay" id="modal">
+    <div class="modal-box">
+        <h3>Назначить рецензента</h3>
+        <p style="color:#666; margin-bottom:1rem;">Статья: <strong id="modalTitle"></strong></p>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">
+            ℹ️ Данные автора будут скрыты от рецензента
+        </p>
+        <div class="form-group">
+            <label>Выберите рецензента</label>
+            <select id="reviewerSelect"></select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="confirmAssign()">Назначить</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+    requireAuth('ADMIN');
+    showUserName();
+    document.getElementById('sidebarName').textContent = localStorage.getItem('name') || 'Админ';
+
+    let currentArticleId = null;
+
+    function showSection(section) {
+        document.getElementById('btn-pending').classList.remove('active');
+        document.getElementById('btn-pending').classList.add('active');
+        loadPendingArticles();
+    }
+
+    async function loadPendingArticles() {
+        const list = document.getElementById('pendingList');
+        try {
+            const articles = await getPendingArticles();
+
+            // Обновляем статистику
+            document.getElementById('statPending').textContent = articles.length;
+
+            // Загружаем опубликованные для статистики
+            try {
+                const res = await fetch('http://localhost:8080/api/articles/published');
+                const published = await res.json();
+                document.getElementById('statPublished').textContent = published.length;
+            } catch(e) {}
+
+            if (articles.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🎉</div>
+                        <p>Все статьи проверены!</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = articles.map(a => `
+                <div class="article-item">
+                    <div class="article-item-header">
+                        <h3>${a.title}</h3>
+                        <span class="badge badge-pending">⏳ Ожидает</span>
+                    </div>
+                    <div class="article-meta">
+                        👤 Автор: ${a.author.name} · 📧 ${a.author.email}
+                        ${a.topic ? '· 🏷️ ' + a.topic : ''}
+                    </div>
+                    <p style="color:#555; font-size:0.9rem; margin-bottom:1rem; line-height:1.6;">
+                        ${a.content.substring(0, 250)}...
+                    </p>
+                    <button class="btn btn-primary" onclick="openModal(${a.id}, '${a.title.replace(/'/g, "\\'")}')">
+                        Назначить рецензента →
+                    </button>
+                </div>
+            `).join('');
+        } catch (e) {
+            list.innerHTML = '<p style="color:red;">Ошибка загрузки</p>';
+        }
+    }
+
+    async function openModal(articleId, title) {
+        currentArticleId = articleId;
+        document.getElementById('modalTitle').textContent = title;
+        const select = document.getElementById('reviewerSelect');
+        select.innerHTML = '<option>Загрузка...</option>';
+
+        try {
+            const reviewers = await getReviewers();
+            select.innerHTML = reviewers.map(r =>
+                `<option value="${r.id}">${r.name} (${r.email})</option>`
+            ).join('');
+        } catch (e) {
+            select.innerHTML = '<option>Ошибка загрузки</option>';
+        }
+
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        currentArticleId = null;
+    }
+
+    async function confirmAssign() {
+        const reviewerId = document.getElementById('reviewerSelect').value;
+        try {
+            await assignReviewer(currentArticleId, reviewerId);
+            alert('✅ Рецензент назначен! Данные автора скрыты.');
+            closeModal();
+            loadPendingArticles();
+        } catch (e) {
+            alert('Ошибка: ' + e.message);
+        }
+    }
+
+    loadPendingArticles();
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статья — Journal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .article-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .article-hero .topic-tag {
+            background: #e94560;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .article-hero h1 {
+            font-size: 2rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            max-width: 800px;
+        }
+
+        .article-hero .meta {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .article-body {
+            max-width: 800px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .article-body p {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #e94560;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: gap 0.2s;
+        }
+
+        .back-btn:hover { gap: 0.8rem; }
+
+        .divider {
+            border: none;
+            border-top: 2px solid #f0f0f0;
+            margin: 2rem 0;
+        }
+
+        .author-block {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f8f9fa;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e94560;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #888;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="published.html" class="logo">📰 Journal</a>
+    <div class="nav-links">
+        <a href="published.html">← Все статьи</a>
+        <a href="login.html">Войти</a>
+    </div>
+</nav>
+
+<!-- Заголовок статьи -->
+<div class="article-hero" id="articleHero" style="display:none;">
+    <div class="container">
+        <span class="topic-tag" id="articleTopic"></span>
+        <h1 id="articleTitle"></h1>
+        <div class="meta">
+            ✅ Опубликовано · Автор: <span id="articleAuthor"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Тело статьи -->
+<div class="article-body">
+    <div id="loadingState" class="loading">Загрузка статьи...</div>
+    <div id="articleContent" style="display:none;">
+        <a href="published.html" class="back-btn">← Назад к статьям</a>
+        <hr class="divider">
+        <p id="articleText"></p>
+        <hr class="divider">
+        <div class="author-block">
+            <div class="author-avatar" id="authorAvatar"></div>
+            <div>
+                <div style="font-weight:600;" id="authorName"></div>
+                <div style="color:#888; font-size:0.85rem;">Автор статьи</div>
+            </div>
+        </div>
+    </div>
+    <div id="errorState" style="display:none; text-align:center; padding:4rem; color:#888;">
+        <div style="font-size:3rem; margin-bottom:1rem;">😕</div>
+        <p>Статья не найдена</p>
+        <a href="published.html" class="btn btn-primary" style="margin-top:1rem;">← Вернуться</a>
+    </div>
+</div>
+
+<script>
+    // Берём id статьи из URL: article.html?id=3
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get('id');
+
+    async function loadArticle() {
+        if (!articleId) {
+            showError();
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:8080/api/articles/published`);
+            const articles = await res.json();
+
+            // Находим нужную статью по id
+            const article = articles.find(a => a.id == articleId);
+
+            if (!article) {
+                showError();
+                return;
+            }
+
+            // Заполняем страницу данными
+            document.title = article.title + ' — Journal';
+
+            document.getElementById('articleTopic').textContent = article.topic || 'Без темы';
+            document.getElementById('articleTitle').textContent = article.title;
+            document.getElementById('articleAuthor').textContent = article.author.name;
+            document.getElementById('articleText').textContent = article.content;
+            document.getElementById('authorName').textContent = article.author.name;
+            document.getElementById('authorAvatar').textContent = article.author.name[0].toUpperCase();
+
+            // Показываем контент
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('articleHero').style.display = 'block';
+            document.getElementById('articleContent').style.display = 'block';
+
+        } catch (e) {
+            showError();
+        }
+    }
+
+    function showError() {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+    }
+
+    loadArticle();
+</script>
+</body>
+</html>

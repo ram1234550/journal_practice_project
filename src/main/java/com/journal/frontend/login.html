@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — Journal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 0.3rem;
+        }
+
+        .login-box .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .login-box .logo {
+            text-align: center;
+            font-size: 2rem;
+            color: #e94560;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .register-link a {
+            color: #e94560;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <div class="logo">📰 Journal</div>
+    <h1>Добро пожаловать</h1>
+    <p class="subtitle">Войдите в свой аккаунт</p>
+
+    <div id="errorMsg" class="alert alert-error" style="display:none;"></div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="your@email.com">
+    </div>
+
+    <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="password" placeholder="••••••••">
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">
+        Войти
+    </button>
+
+    <p class="register-link">
+        Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+    </p>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMsg');
+
+        if (!email || !password) {
+            errorMsg.textContent = 'Заполните все поля';
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        try {
+            const data = await login(email, password);
+
+            // Сохраняем токен и данные
+            saveAuth(data.token, data.role, data.name, data.id);
+
+            // Перенаправляем в зависимости от роли
+            if (data.role === 'ADMIN')    window.location.href = 'admin/dashboard.html';
+            else if (data.role === 'REVIEWER') window.location.href = 'reviewer/dashboard.html';
+            else window.location.href = 'author/dashboard.html';
+
+        } catch (e) {
+            errorMsg.textContent = e.message;
+            errorMsg.style.display = 'block';
+        }
+    }
+
+    // Войти по Enter
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+</script>
+</body>
+</html>
