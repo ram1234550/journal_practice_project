@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -138,6 +139,13 @@ class JournalWorkflowIntegrationTests {
                         .header("Authorization", "Bearer " + authorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].status").value("PUBLISHED"));
+    }
+
+    @Test
+    void publicRootPageIsAvailableWithoutAuthentication() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("index.html"));
     }
 
     private String loginAndGetToken(String email, String password) throws Exception {
