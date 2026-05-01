@@ -103,7 +103,7 @@
 
         try {
             // Регистрация всегда как AUTHOR
-            await register(name, email, password, 'AUTHOR');
+            await register(name, email, password);
             successMsg.textContent = 'Аккаунт создан! Перенаправляем...';
             successMsg.style.display = 'block';
             setTimeout(() => window.location.href = 'login.html', 1500);

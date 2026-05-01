@@ -86,8 +86,7 @@
         const list = document.getElementById('articlesList');
 
         try {
-            const res = await fetch('http://localhost:8080/api/articles/published');
-            const articles = await res.json();
+            const articles = await getPublishedArticles();
 
             if (articles.length === 0) {
                 list.innerHTML = `
@@ -105,7 +104,7 @@
                     <h3>${a.title}</h3>
                     <p style="color:#555; line-height:1.7;">${a.content.substring(0, 200)}...</p>
                     <div class="article-meta" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>✅ Автор: ${a.author.name}</span>
+                        <span>✅ Автор: ${a.authorName}</span>
                         <span style="color:#e94560; font-weight:600;">Читать далее →</span>
                     </div>
                 </div>
@@ -143,8 +142,8 @@
 <!--                    <h3>${a.title}</h3>-->
 <!--                    <p style="color:#555; line-height:1.7;">${a.content.substring(0, 300)}...</p>-->
 <!--                    <div class="article-meta">-->
-<!--                        ✅ Опубликовано · Автор: ${a.author.name}-->
-<!--                        <span>✅ Автор: ${a.author.name}</span>-->
+<!--                        ✅ Опубликовано · Автор: ${a.authorName}-->
+<!--                        <span>✅ Автор: ${a.authorName}</span>-->
 <!--                        <span style="color:#e94560; font-weight:600;">Читать далее →</span>-->
 <!--                    </div>-->
 <!--                </div>-->

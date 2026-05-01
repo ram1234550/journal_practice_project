@@ -2,7 +2,9 @@ package com.journal.backend.service;
 
 import com.journal.backend.dto.ArticleResponseDTO;
 import com.journal.backend.dto.AssignReviewerRequest;
+import com.journal.backend.dto.CreateArticleRequest;
 import com.journal.backend.dto.ReviewDecisionRequest;
+import com.journal.backend.dto.UserSummaryDTO;
 import com.journal.backend.entity.Article;
 import com.journal.backend.entity.Review;
 import com.journal.backend.entity.User;
@@ -11,11 +13,16 @@ import com.journal.backend.repository.ReviewRepository;
 import com.journal.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service   // говорит Spring: это сервис-класс с логикой
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+@Service
 public class ArticleService {
 
     @Autowired
@@ -27,69 +34,45 @@ public class ArticleService {
     @Autowired
     private UserRepository userRepository;
 
-    // ── Автор создаёт статью ──────────────────────────────────────────
-    public Article createArticle(Long authorId, String title,
-                                 String topic, String content) {
-        User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new RuntimeException("Автор не найден"));
+    public ArticleResponseDTO createArticle(String authorEmail, CreateArticleRequest request) {
+        User author = requireUserByEmail(authorEmail);
 
         Article article = new Article();
         article.setAuthor(author);
-        article.setTitle(title);
-        article.setTopic(topic);
-        article.setContent(content);
-        article.setStatus("PENDING");   // ждёт проверки у админа
+        article.setTitle(request.getTitle());
+        article.setTopic(request.getTopic());
+        article.setContent(request.getContent());
+        article.setStatus("PENDING");
         article.setCreatedAt(LocalDateTime.now());
         article.setUpdatedAt(LocalDateTime.now());
 
-        return articleRepository.save(article);
+        return toAuthorArticle(articleRepository.save(article));
     }
 
-    // ── Админ назначает рецензента ────────────────────────────────────
-    public Article assignReviewer(AssignReviewerRequest request) {
-        Article article = articleRepository.findById(request.getArticleId())
-                .orElseThrow(() -> new RuntimeException("Статья не найдена"));
-
+    public ArticleResponseDTO assignReviewer(AssignReviewerRequest request) {
+        Article article = requireArticle(request.getArticleId());
         User reviewer = userRepository.findById(request.getReviewerId())
-                .orElseThrow(() -> new RuntimeException("Рецензент не найден"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Рецензент не найден"));
 
-        // Проверяем что это именно рецензент, а не автор или админ
-        if (!reviewer.getRole().equals("REVIEWER")) {
-            throw new RuntimeException("Этот пользователь не является рецензентом");
+        if (!"REVIEWER".equals(reviewer.getRole())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Этот пользователь не является рецензентом");
         }
 
         article.setReviewer(reviewer);
-        article.setStatus("UNDER_REVIEW");   // статья на рецензировании
+        article.setStatus("UNDER_REVIEW");
         article.setUpdatedAt(LocalDateTime.now());
 
-        return articleRepository.save(article);
+        return toAdminArticle(articleRepository.save(article));
     }
 
-    // ── Рецензент получает статью БЕЗ данных автора ───────────────────
-    public ArticleResponseDTO getArticleForReviewer(Long articleId) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new RuntimeException("Статья не найдена"));
+    public ArticleResponseDTO submitReview(String reviewerEmail, ReviewDecisionRequest request) {
+        Article article = requireArticle(request.getArticleId());
+        User reviewer = requireUserByEmail(reviewerEmail);
 
-        // Копируем только нужные поля — имя и email автора НЕ включаем
-        ArticleResponseDTO dto = new ArticleResponseDTO();
-        dto.setId(article.getId());
-        dto.setTitle(article.getTitle());
-        dto.setTopic(article.getTopic());
-        dto.setContent(article.getContent());
-        dto.setStatus(article.getStatus());
+        if (article.getReviewer() == null || !article.getReviewer().getId().equals(reviewer.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "Статья не назначена этому рецензенту");
+        }
 
-        return dto;   // автор неизвестен рецензенту
-    }
-
-    // ── Рецензент выносит вердикт ─────────────────────────────────────
-    public Review submitReview(ReviewDecisionRequest request) {
-        Article article = articleRepository.findById(request.getArticleId())
-                .orElseThrow(() -> new RuntimeException("Статья не найдена"));
-
-        User reviewer = userRepository.findById(request.getReviewerId())
-                .orElseThrow(() -> new RuntimeException("Рецензент не найден"));
-
-        // Сохраняем рецензию
         Review review = new Review();
         review.setArticle(article);
         review.setReviewer(reviewer);
@@ -98,43 +81,130 @@ public class ArticleService {
         review.setCreatedAt(LocalDateTime.now());
         reviewRepository.save(review);
 
-        // Меняем статус статьи в зависимости от решения
-        if (request.getVerdict().equals("ACCEPTED")) {
-            article.setStatus("PUBLISHED");    // статья опубликована
+        if ("ACCEPTED".equals(request.getVerdict())) {
+            article.setStatus("PUBLISHED");
         } else {
-            article.setStatus("REVISION");     // отправлена на доработку
+            article.setStatus("REVISION");
         }
 
         article.setUpdatedAt(LocalDateTime.now());
-        articleRepository.save(article);
+        Article savedArticle = articleRepository.save(article);
 
-        return review;
+        return toBlindArticle(savedArticle);
     }
 
-    // ── Автор отправляет доработанную статью ─────────────────────────
-    public Article resubmitArticle(Long articleId, String newContent) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new RuntimeException("Статья не найдена"));
+    public ArticleResponseDTO resubmitArticle(String authorEmail, Long articleId, String newContent) {
+        Article article = requireArticle(articleId);
+        User author = requireUserByEmail(authorEmail);
 
-        if (!article.getStatus().equals("REVISION")) {
-            throw new RuntimeException("Статья не находится на доработке");
+        if (article.getAuthor() == null || !article.getAuthor().getId().equals(author.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "Нельзя отправить чужую статью на доработку");
+        }
+
+        if (!"REVISION".equals(article.getStatus())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Статья не находится на доработке");
         }
 
         article.setContent(newContent);
-        article.setStatus("PENDING");       // снова к админу
-        article.setReviewer(null);          // рецензент сбрасывается
+        article.setStatus("PENDING");
+        article.setReviewer(null);
         article.setUpdatedAt(LocalDateTime.now());
 
-        return articleRepository.save(article);
+        return toAuthorArticle(articleRepository.save(article));
     }
 
-    // ── Получить все статьи со статусом PENDING (для админа) ─────────
-    public List<Article> getPendingArticles() {
-        return articleRepository.findByStatus("PENDING");
+    public List<ArticleResponseDTO> getPendingArticles() {
+        return articleRepository.findByStatus("PENDING").stream()
+                .map(this::toAdminArticle)
+                .toList();
     }
 
-    // ── Получить статьи назначенные рецензенту ────────────────────────
-    public List<Article> getArticlesForReviewer(Long reviewerId) {
-        return articleRepository.findByReviewerIdAndStatus(reviewerId, "UNDER_REVIEW");
+    public List<UserSummaryDTO> getReviewers() {
+        return userRepository.findByRole("REVIEWER").stream()
+                .map(user -> new UserSummaryDTO(user.getId(), user.getName(), user.getEmail(), user.getRole()))
+                .toList();
+    }
+
+    public List<ArticleResponseDTO> getArticlesForReviewer(String reviewerEmail) {
+        User reviewer = requireUserByEmail(reviewerEmail);
+        return articleRepository.findByReviewerIdAndStatus(reviewer.getId(), "UNDER_REVIEW").stream()
+                .map(this::toBlindArticle)
+                .toList();
+    }
+
+    public List<ArticleResponseDTO> getPublishedArticles() {
+        return articleRepository.findByStatus("PUBLISHED").stream()
+                .map(this::toPublicArticle)
+                .toList();
+    }
+
+    public ArticleResponseDTO getPublishedArticle(Long articleId) {
+        Article article = requireArticle(articleId);
+        if (!"PUBLISHED".equals(article.getStatus())) {
+            throw new ResponseStatusException(NOT_FOUND, "Статья не найдена");
+        }
+        return toPublicArticle(article);
+    }
+
+    public List<ArticleResponseDTO> getArticlesByAuthor(String authorEmail) {
+        User author = requireUserByEmail(authorEmail);
+        return articleRepository.findByAuthorId(author.getId()).stream()
+                .map(this::toAuthorArticle)
+                .toList();
+    }
+
+    private User requireUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Пользователь не найден"));
+    }
+
+    private Article requireArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Статья не найдена"));
+    }
+
+    private ArticleResponseDTO toAdminArticle(Article article) {
+        ArticleResponseDTO dto = toBaseArticle(article);
+        if (article.getAuthor() != null) {
+            dto.setAuthorName(article.getAuthor().getName());
+            dto.setAuthorEmail(article.getAuthor().getEmail());
+        }
+        return dto;
+    }
+
+    private ArticleResponseDTO toAuthorArticle(Article article) {
+        ArticleResponseDTO dto = toBaseArticle(article);
+        if (article.getAuthor() != null) {
+            dto.setAuthorName(article.getAuthor().getName());
+            dto.setAuthorEmail(article.getAuthor().getEmail());
+        }
+        return dto;
+    }
+
+    private ArticleResponseDTO toBlindArticle(Article article) {
+        return toBaseArticle(article);
+    }
+
+    private ArticleResponseDTO toPublicArticle(Article article) {
+        ArticleResponseDTO dto = toBaseArticle(article);
+        if (article.getAuthor() != null) {
+            dto.setAuthorName(article.getAuthor().getName());
+        }
+        return dto;
+    }
+
+    private ArticleResponseDTO toBaseArticle(Article article) {
+        ArticleResponseDTO dto = new ArticleResponseDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setTopic(article.getTopic());
+        dto.setContent(article.getContent());
+        dto.setStatus(article.getStatus());
+        dto.setCreatedAt(article.getCreatedAt());
+        dto.setUpdatedAt(article.getUpdatedAt());
+        if (article.getReviewer() != null) {
+            dto.setReviewerName(article.getReviewer().getName());
+        }
+        return dto;
     }
 }

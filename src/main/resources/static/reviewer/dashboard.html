@@ -100,11 +100,10 @@
     document.getElementById('avatarLetter').textContent = name[0].toUpperCase();
 
     async function loadArticles() {
-        const reviewerId = localStorage.getItem('userId');
         const list = document.getElementById('reviewList');
 
         try {
-            const articles = await getArticlesForReviewer(reviewerId);
+            const articles = await getArticlesForReviewer();
 
             // Показываем счётчик в меню
             if (articles.length > 0) {
@@ -150,7 +149,6 @@
     }
 
     async function handleVerdict(articleId, verdict) {
-        const reviewerId = localStorage.getItem('userId');
         const comment = document.getElementById(`comment_${articleId}`).value;
 
         if (!comment.trim()) {
@@ -162,7 +160,7 @@
         if (!confirm(`Вы уверены что хотите ${action} эту статью?`)) return;
 
         try {
-            await submitReview(articleId, reviewerId, verdict, comment);
+            await submitReview(articleId, verdict, comment);
             if (verdict === 'ACCEPTED') {
                 alert('✅ Статья принята и опубликована!');
             } else {

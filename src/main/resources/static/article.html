@@ -59,7 +59,9 @@
             transition: gap 0.2s;
         }
 
-        .back-btn:hover { gap: 0.8rem; }
+        .back-btn:hover {
+            gap: 0.8rem;
+        }
 
         .divider {
             border: none;
@@ -109,7 +111,6 @@
     </div>
 </nav>
 
-<!-- Заголовок статьи -->
 <div class="article-hero" id="articleHero" style="display:none;">
     <div class="container">
         <span class="topic-tag" id="articleTopic"></span>
@@ -120,7 +121,6 @@
     </div>
 </div>
 
-<!-- Тело статьи -->
 <div class="article-body">
     <div id="loadingState" class="loading">Загрузка статьи...</div>
     <div id="articleContent" style="display:none;">
@@ -143,8 +143,8 @@
     </div>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    // Берём id статьи из URL: article.html?id=3
     const params = new URLSearchParams(window.location.search);
     const articleId = params.get('id');
 
@@ -155,32 +155,19 @@
         }
 
         try {
-            const res = await fetch(`http://localhost:8080/api/articles/published`);
-            const articles = await res.json();
+            const article = await getPublishedArticle(articleId);
 
-            // Находим нужную статью по id
-            const article = articles.find(a => a.id == articleId);
-
-            if (!article) {
-                showError();
-                return;
-            }
-
-            // Заполняем страницу данными
             document.title = article.title + ' — Journal';
-
             document.getElementById('articleTopic').textContent = article.topic || 'Без темы';
             document.getElementById('articleTitle').textContent = article.title;
-            document.getElementById('articleAuthor').textContent = article.author.name;
+            document.getElementById('articleAuthor').textContent = article.authorName;
             document.getElementById('articleText').textContent = article.content;
-            document.getElementById('authorName').textContent = article.author.name;
-            document.getElementById('authorAvatar').textContent = article.author.name[0].toUpperCase();
+            document.getElementById('authorName').textContent = article.authorName;
+            document.getElementById('authorAvatar').textContent = article.authorName[0].toUpperCase();
 
-            // Показываем контент
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('articleHero').style.display = 'block';
             document.getElementById('articleContent').style.display = 'block';
-
         } catch (e) {
             showError();
         }

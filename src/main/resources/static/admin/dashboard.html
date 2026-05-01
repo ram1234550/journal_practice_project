@@ -172,8 +172,7 @@
 
             // Загружаем опубликованные для статистики
             try {
-                const res = await fetch('http://localhost:8080/api/articles/published');
-                const published = await res.json();
+                const published = await getPublishedArticles();
                 document.getElementById('statPublished').textContent = published.length;
             } catch(e) {}
 
@@ -193,7 +192,7 @@
                         <span class="badge badge-pending">⏳ Ожидает</span>
                     </div>
                     <div class="article-meta">
-                        👤 Автор: ${a.author.name} · 📧 ${a.author.email}
+                        👤 Автор: ${a.authorName} · 📧 ${a.authorEmail}
                         ${a.topic ? '· 🏷️ ' + a.topic : ''}
                     </div>
                     <p style="color:#555; font-size:0.9rem; margin-bottom:1rem; line-height:1.6;">

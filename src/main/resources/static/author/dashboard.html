@@ -251,7 +251,6 @@
         const title = document.getElementById('title').value;
         const topic = document.getElementById('topic').value;
         const content = document.getElementById('content').value;
-        const authorId = localStorage.getItem('userId');
         const err = document.getElementById('articleError');
         const suc = document.getElementById('articleSuccess');
 
@@ -265,7 +264,7 @@
         }
 
         try {
-            await createArticle(title, topic, content, authorId);
+            await createArticle(title, topic, content);
             suc.textContent = '✅ Статья отправлена на проверку администратору!';
             suc.style.display = 'block';
             document.getElementById('title').value = '';
@@ -278,11 +277,10 @@
     }
 
     async function loadMyArticles() {
-        const authorId = localStorage.getItem('userId');
         const list = document.getElementById('articlesList');
 
         try {
-            const articles = await getMyArticles(authorId);
+            const articles = await getMyArticles();
 
             if (articles.length === 0) {
                 list.innerHTML = '<div class="card"><p style="color:#888; text-align:center;">У вас пока нет статей</p></div>';
