@@ -44,6 +44,8 @@
         .empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
         .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
         .badge-count { background: #e94560; color: white; border-radius: 20px; padding: 0.1rem 0.5rem; font-size: 0.75rem; font-weight: 700; }
+        .btn-reject { background: #ef4444; color: white; }
+        .btn-reject:hover { background: #dc2626; transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -140,6 +142,9 @@
                             <button class="btn btn-revision" onclick="handleVerdict(${a.id}, 'REVISION')">
                                 ✏️ На доработку
                             </button>
+                            <button class="btn btn-reject" onclick="handleVerdict(${a.id}, 'REJECTED')">
+                            ❌ Отклонить
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -150,29 +155,59 @@
     }
 
     async function handleVerdict(articleId, verdict) {
-        const reviewerId = localStorage.getItem('userId');
-        const comment = document.getElementById(`comment_${articleId}`).value;
+    const reviewerId = localStorage.getItem('userId');
+    const comment = document.getElementById(`comment_${articleId}`).value;
 
-        if (!comment.trim()) {
-            alert('⚠️ Напишите комментарий перед отправкой решения');
-            return;
-        }
-
-        const action = verdict === 'ACCEPTED' ? 'принять и опубликовать' : 'отправить на доработку';
-        if (!confirm(`Вы уверены что хотите ${action} эту статью?`)) return;
-
-        try {
-            await submitReview(articleId, reviewerId, verdict, comment);
-            if (verdict === 'ACCEPTED') {
-                alert('✅ Статья принята и опубликована!');
-            } else {
-                alert('✏️ Статья отправлена автору на доработку');
-            }
-            loadArticles();
-        } catch (e) {
-            alert('Ошибка: ' + e.message);
-        }
+    if (!comment.trim()) {
+        alert('⚠️ Напишите комментарий перед отправкой решения');
+        return;
     }
+
+    const actionMap = {
+        'ACCEPTED': 'принять и опубликовать',
+        'REVISION': 'отправить на доработку',
+        'REJECTED': 'полностью отклонить'
+    };
+    if (!confirm(`Вы уверены что хотите ${actionMap[verdict]} эту статью?`)) return;
+
+    try {
+        await submitReview(articleId, reviewerId, verdict, comment);
+        if (verdict === 'ACCEPTED') {
+            alert('✅ Статья принята и опубликована!');
+        } else if (verdict === 'REJECTED') {
+            alert('❌ Статья отклонена.');
+        } else {
+            alert('✏️ Статья отправлена автору на доработку');
+        }
+        loadArticles();
+    } catch (e) {
+        alert('Ошибка: ' + e.message);
+    }
+}
+<!--    async function handleVerdict(articleId, verdict) {-->
+<!--        const reviewerId = localStorage.getItem('userId');-->
+<!--        const comment = document.getElementById(`comment_${articleId}`).value;-->
+
+<!--        if (!comment.trim()) {-->
+<!--            alert('⚠️ Напишите комментарий перед отправкой решения');-->
+<!--            return;-->
+<!--        }-->
+
+<!--        const action = verdict === 'ACCEPTED' ? 'принять и опубликовать' : 'отправить на доработку';-->
+<!--        if (!confirm(`Вы уверены что хотите ${action} эту статью?`)) return;-->
+
+<!--        try {-->
+<!--            await submitReview(articleId, reviewerId, verdict, comment);-->
+<!--            if (verdict === 'ACCEPTED') {-->
+<!--                alert('✅ Статья принята и опубликована!');-->
+<!--            } else {-->
+<!--                alert('✏️ Статья отправлена автору на доработку');-->
+<!--            }-->
+<!--            loadArticles();-->
+<!--        } catch (e) {-->
+<!--            alert('Ошибка: ' + e.message);-->
+<!--        }-->
+<!--    }-->
 
     loadArticles();
 </script>

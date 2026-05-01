@@ -3,12 +3,14 @@ package com.journal.backend.controller;
 import com.journal.backend.dto.AssignReviewerRequest;
 import com.journal.backend.entity.Article;
 import com.journal.backend.entity.User;
+import com.journal.backend.repository.ArticleRepository;
 import com.journal.backend.repository.UserRepository;
 import com.journal.backend.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -19,23 +21,29 @@ public class AdminController {
     private ArticleService articleService;
 
     @Autowired
+    private ArticleRepository articleRepository;  // ← раскомментировал
+
+    @Autowired
     private UserRepository userRepository;
 
-    // GET /api/admin/articles/pending — все статьи которые ждут проверки
     @GetMapping("/articles/pending")
     public List<Article> getPendingArticles() {
         return articleService.getPendingArticles();
     }
 
-    // GET /api/admin/reviewers — список всех рецензентов
     @GetMapping("/reviewers")
     public List<User> getAllReviewers() {
         return userRepository.findByRole("REVIEWER");
     }
 
-    // POST /api/admin/assign — назначить рецензента на статью
     @PostMapping("/assign")
     public Article assignReviewer(@RequestBody AssignReviewerRequest request) {
         return articleService.assignReviewer(request);
+    }
+
+    @DeleteMapping("/articles/{id}")
+    public Map<String, String> deleteArticle(@PathVariable Long id) {
+        articleRepository.deleteById(id);
+        return Map.of("message", "Статья удалена");
     }
 }

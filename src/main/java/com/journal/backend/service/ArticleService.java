@@ -101,6 +101,8 @@ public class ArticleService {
         // Меняем статус статьи в зависимости от решения
         if (request.getVerdict().equals("ACCEPTED")) {
             article.setStatus("PUBLISHED");    // статья опубликована
+        } else if (request.getVerdict().equals("REJECTED")) {
+            article.setStatus("REJECTED");
         } else {
             article.setStatus("REVISION");     // отправлена на доработку
         }
