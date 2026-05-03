@@ -1,9 +1,8 @@
-package com.journal.backend.controller;
+package com.journal.backend.security;
 
 import com.journal.backend.dto.AuthResponseDTO;
 import com.journal.backend.entity.User;
 import com.journal.backend.repository.UserRepository;
-import com.journal.backend.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,40 @@
+[1mdiff --git a/src/main/java/com/journal/backend/security/AuthController.java b/src/main/java/com/journal/backend/security/AuthController.java[m
+[1mindex d25de86..c452b38 100644[m
+[1m--- a/src/main/java/com/journal/backend/security/AuthController.java[m
+[1m+++ b/src/main/java/com/journal/backend/security/AuthController.java[m
+[36m@@ -1,9 +1,8 @@[m
+[31m-package com.journal.backend.controller;[m
+[32m+[m[32mpackage com.journal.backend.security;[m
+ [m
+ import com.journal.backend.dto.AuthResponseDTO;[m
+ import com.journal.backend.entity.User;[m
+ import com.journal.backend.repository.UserRepository;[m
+[31m-import com.journal.backend.security.JwtUtil;[m
+ import org.springframework.beans.factory.annotation.Autowired;[m
+ import org.springframework.security.crypto.password.PasswordEncoder;[m
+ import org.springframework.web.bind.annotation.*;[m
+[1mdiff --git a/src/main/java/com/journal/backend/service/DemoDataSeeder.java b/src/main/java/com/journal/backend/service/DemoDataSeeder.java[m
+[1mindex 72210c8..4edb22a 100644[m
+[1m--- a/src/main/java/com/journal/backend/service/DemoDataSeeder.java[m
+[1m+++ b/src/main/java/com/journal/backend/service/DemoDataSeeder.java[m
+[36m@@ -38,7 +38,7 @@[m [mpublic class DemoDataSeeder implements CommandLineRunner {[m
+             return;[m
+         }[m
+ [m
+[31m-        User admin = ensureUser("Editor Admin", "admin@journal.local", "admin123", "ADMIN");[m
+[32m+[m[32m        ensureUser("Editor Admin", "admin@journal.local", "admin123", "ADMIN");[m
+         User reviewer = ensureUser("Rina Reviewer", "reviewer@journal.local", "reviewer123", "REVIEWER");[m
+         User author = ensureUser("Aidar Author", "author@journal.local", "author123", "AUTHOR");[m
+ [m
+[1mdiff --git a/src/test/java/com/journal/backend/JournalWorkflowIntegrationTests.java b/src/test/java/com/journal/backend/JournalWorkflowIntegrationTests.java[m
+[1mindex be55676..e2d3871 100644[m
+[1m--- a/src/test/java/com/journal/backend/JournalWorkflowIntegrationTests.java[m
+[1m+++ b/src/test/java/com/journal/backend/JournalWorkflowIntegrationTests.java[m
+[36m@@ -20,7 +20,6 @@[m [mimport java.util.Map;[m
+ [m
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;[m
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;[m
+[31m-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;[m
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;[m
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;[m
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;[m

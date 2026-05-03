@@ -38,7 +38,7 @@ public class DemoDataSeeder implements CommandLineRunner {
             return;
         }
 
-        User admin = ensureUser("Editor Admin", "admin@journal.local", "admin123", "ADMIN");
+        ensureUser("Editor Admin", "admin@journal.local", "admin123", "ADMIN");
         User reviewer = ensureUser("Rina Reviewer", "reviewer@journal.local", "reviewer123", "REVIEWER");
         User author = ensureUser("Aidar Author", "author@journal.local", "author123", "AUTHOR");
 
