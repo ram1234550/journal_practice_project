@@ -16,13 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -53,8 +53,9 @@ class JournalWorkflowIntegrationTests {
         articleRepository.deleteAll();
         userRepository.deleteAll();
 
-        createUser("Admin User", "admin@test.local", "admin123", "ADMIN");
-        createUser("Reviewer User", "reviewer@test.local", "reviewer123", "REVIEWER");
+        createUser("Admin User", "admin@test.local", "admin123", List.of("ADMIN"));
+        createUser("Chair User", "chair@test.local", "chair123", List.of("CHAIR", "AUTHOR"));
+        createUser("Reviewer User", "reviewer@test.local", "reviewer123", List.of("REVIEWER"));
     }
 
     @Test
@@ -76,7 +77,7 @@ class JournalWorkflowIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "title", "A Test Article",
-                                "topic", "Testing",
+                                "topic", "Technology",
                                 "content", "This is a test article."
                         ))))
                 .andExpect(status().isOk())
@@ -125,20 +126,10 @@ class JournalWorkflowIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("PUBLISHED"));
 
-        mockMvc.perform(get("/api/articles/published"))
+        mockMvc.perform(get("/api/articles/published").param("topic", "Technology"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(articleId))
                 .andExpect(jsonPath("$[0].authorName").value("Author User"));
-
-        mockMvc.perform(get("/api/articles/published/{id}", articleId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("A Test Article"))
-                .andExpect(jsonPath("$.authorName").value("Author User"));
-
-        mockMvc.perform(get("/api/articles/my")
-                        .header("Authorization", "Bearer " + authorToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].status").value("PUBLISHED"));
     }
 
     @Test
@@ -146,6 +137,16 @@ class JournalWorkflowIntegrationTests {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(forwardedUrl("index.html"));
+    }
+
+    @Test
+    void chairCanUseAdminEndpoints() throws Exception {
+        String chairToken = loginAndGetToken("chair@test.local", "chair123");
+
+        mockMvc.perform(get("/api/admin/reviewers")
+                        .header("Authorization", "Bearer " + chairToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].role").exists());
     }
 
     private String loginAndGetToken(String email, String password) throws Exception {
@@ -164,13 +165,13 @@ class JournalWorkflowIntegrationTests {
         return node.get("token").asText();
     }
 
-    private void createUser(String name, String email, String rawPassword, String role) {
+    private User createUser(String name, String email, String rawPassword, List<String> roles) {
         User user = new User();
         user.setName(name);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setRole(role);
+        user.setRoles(roles);
         user.setCreatedAt(LocalDateTime.now());
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }

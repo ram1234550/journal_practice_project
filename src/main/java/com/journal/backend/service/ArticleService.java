@@ -54,7 +54,7 @@ public class ArticleService {
         User reviewer = userRepository.findById(request.getReviewerId())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Рецензент не найден"));
 
-        if (!"REVIEWER".equals(reviewer.getRole())) {
+        if (!reviewer.hasRole("REVIEWER")) {
             throw new ResponseStatusException(BAD_REQUEST, "Этот пользователь не является рецензентом");
         }
 
@@ -121,7 +121,7 @@ public class ArticleService {
 
     public List<UserSummaryDTO> getReviewers() {
         return userRepository.findByRole("REVIEWER").stream()
-                .map(user -> new UserSummaryDTO(user.getId(), user.getName(), user.getEmail(), user.getRole()))
+                .map(user -> new UserSummaryDTO(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getRoles()))
                 .toList();
     }
 
@@ -132,8 +132,12 @@ public class ArticleService {
                 .toList();
     }
 
-    public List<ArticleResponseDTO> getPublishedArticles() {
-        return articleRepository.findByStatus("PUBLISHED").stream()
+    public List<ArticleResponseDTO> getPublishedArticles(String topic) {
+        List<Article> articles = topic == null || topic.isBlank()
+                ? articleRepository.findByStatusOrderByCreatedAtDesc("PUBLISHED")
+                : articleRepository.findByStatusAndTopicIgnoreCaseOrderByCreatedAtDesc("PUBLISHED", topic.trim());
+
+        return articles.stream()
                 .map(this::toPublicArticle)
                 .toList();
     }

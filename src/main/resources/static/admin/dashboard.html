@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель администратора — Journal</title>
+    <title>РџР°РЅРµР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР° вЂ” Journal</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         body { background: #f0f2f5; }
@@ -65,10 +65,10 @@
 <body>
 
 <nav class="top-nav">
-    <a href="../published.html" class="logo">📰 Journal</a>
+    <a href="../published.html" class="logo">рџ“° Journal</a>
     <div class="user-info">
-        Привет, <span id="userName" style="color:white; font-weight:600;"></span>
-        <button class="logout-btn" onclick="logout()">Выйти</button>
+        РџСЂРёРІРµС‚, <span id="userName" style="color:white; font-weight:600;"></span>
+        <button class="logout-btn" onclick="logout()">Р’С‹Р№С‚Рё</button>
     </div>
 </nav>
 
@@ -77,72 +77,72 @@
         <div class="user-block">
             <div class="avatar">A</div>
             <div class="user-name" id="sidebarName"></div>
-            <div class="user-role">⚙️ Администратор</div>
+            <div class="user-role">вљ™пёЏ РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ</div>
         </div>
 
         <button class="menu-item active" id="btn-pending" onclick="showSection('pending')">
-            <span class="icon">📥</span> Входящие статьи
+            <span class="icon">рџ“Ґ</span> Р’С…РѕРґСЏС‰РёРµ СЃС‚Р°С‚СЊРё
         </button>
         <a href="../published.html" class="menu-item">
-            <span class="icon">🌐</span> Все публикации
+            <span class="icon">рџЊђ</span> Р’СЃРµ РїСѓР±Р»РёРєР°С†РёРё
         </a>
 
         <div class="logout-item">
             <button class="menu-item" onclick="logout()">
-                <span class="icon">🚪</span> Выйти
+                <span class="icon">рџљЄ</span> Р’С‹Р№С‚Рё
             </button>
         </div>
     </div>
 
     <div class="main">
         <div id="pending">
-            <h2>📥 Входящие статьи</h2>
+            <h2>рџ“Ґ Р’С…РѕРґСЏС‰РёРµ СЃС‚Р°С‚СЊРё</h2>
 
-            <!-- Статистика -->
+            <!-- РЎС‚Р°С‚РёСЃС‚РёРєР° -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon yellow">⏳</div>
+                    <div class="stat-icon yellow">вЏі</div>
                     <div class="stat-info">
                         <div class="number" id="statPending">0</div>
-                        <div class="label">Ожидают проверки</div>
+                        <div class="label">РћР¶РёРґР°СЋС‚ РїСЂРѕРІРµСЂРєРё</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon blue">🔍</div>
+                    <div class="stat-icon blue">рџ”Ќ</div>
                     <div class="stat-info">
                         <div class="number" id="statReview">0</div>
-                        <div class="label">На рецензировании</div>
+                        <div class="label">РќР° СЂРµС†РµРЅР·РёСЂРѕРІР°РЅРёРё</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon green">✅</div>
+                    <div class="stat-icon green">вњ…</div>
                     <div class="stat-info">
                         <div class="number" id="statPublished">0</div>
-                        <div class="label">Опубликовано</div>
+                        <div class="label">РћРїСѓР±Р»РёРєРѕРІР°РЅРѕ</div>
                     </div>
                 </div>
             </div>
 
-            <div id="pendingList"><p style="color:#888;">Загрузка...</p></div>
+            <div id="pendingList"><p style="color:#888;">Р—Р°РіСЂСѓР·РєР°...</p></div>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно -->
+<!-- РњРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ -->
 <div class="modal-overlay" id="modal">
     <div class="modal-box">
-        <h3>Назначить рецензента</h3>
-        <p style="color:#666; margin-bottom:1rem;">Статья: <strong id="modalTitle"></strong></p>
+        <h3>РќР°Р·РЅР°С‡РёС‚СЊ СЂРµС†РµРЅР·РµРЅС‚Р°</h3>
+        <p style="color:#666; margin-bottom:1rem;">РЎС‚Р°С‚СЊСЏ: <strong id="modalTitle"></strong></p>
         <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">
-            ℹ️ Данные автора будут скрыты от рецензента
+            в„№пёЏ Р”Р°РЅРЅС‹Рµ Р°РІС‚РѕСЂР° Р±СѓРґСѓС‚ СЃРєСЂС‹С‚С‹ РѕС‚ СЂРµС†РµРЅР·РµРЅС‚Р°
         </p>
         <div class="form-group">
-            <label>Выберите рецензента</label>
+            <label>Р’С‹Р±РµСЂРёС‚Рµ СЂРµС†РµРЅР·РµРЅС‚Р°</label>
             <select id="reviewerSelect"></select>
         </div>
         <div class="modal-actions">
-            <button class="btn btn-primary" onclick="confirmAssign()">Назначить</button>
-            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="confirmAssign()">РќР°Р·РЅР°С‡РёС‚СЊ</button>
+            <button class="btn btn-secondary" onclick="closeModal()">РћС‚РјРµРЅР°</button>
         </div>
     </div>
 </div>
@@ -150,9 +150,9 @@
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script>
-    requireAuth('ADMIN');
+    requireAuth(['ADMIN', 'CHAIR']);
     showUserName();
-    document.getElementById('sidebarName').textContent = localStorage.getItem('name') || 'Админ';
+    document.getElementById('sidebarName').textContent = localStorage.getItem('name') || 'РђРґРјРёРЅ';
 
     let currentArticleId = null;
 
@@ -167,10 +167,10 @@
         try {
             const articles = await getPendingArticles();
 
-            // Обновляем статистику
+            // РћР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
             document.getElementById('statPending').textContent = articles.length;
 
-            // Загружаем опубликованные для статистики
+            // Р—Р°РіСЂСѓР¶Р°РµРј РѕРїСѓР±Р»РёРєРѕРІР°РЅРЅС‹Рµ РґР»СЏ СЃС‚Р°С‚РёСЃС‚РёРєРё
             try {
                 const published = await getPublishedArticles();
                 document.getElementById('statPublished').textContent = published.length;
@@ -179,8 +179,8 @@
             if (articles.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="icon">🎉</div>
-                        <p>Все статьи проверены!</p>
+                        <div class="icon">рџЋ‰</div>
+                        <p>Р’СЃРµ СЃС‚Р°С‚СЊРё РїСЂРѕРІРµСЂРµРЅС‹!</p>
                     </div>`;
                 return;
             }
@@ -189,22 +189,22 @@
                 <div class="article-item">
                     <div class="article-item-header">
                         <h3>${a.title}</h3>
-                        <span class="badge badge-pending">⏳ Ожидает</span>
+                        <span class="badge badge-pending">вЏі РћР¶РёРґР°РµС‚</span>
                     </div>
                     <div class="article-meta">
-                        👤 Автор: ${a.authorName} · 📧 ${a.authorEmail}
-                        ${a.topic ? '· 🏷️ ' + a.topic : ''}
+                        рџ‘¤ РђРІС‚РѕСЂ: ${a.authorName} В· рџ“§ ${a.authorEmail}
+                        ${a.topic ? 'В· рџЏ·пёЏ ' + a.topic : ''}
                     </div>
                     <p style="color:#555; font-size:0.9rem; margin-bottom:1rem; line-height:1.6;">
                         ${a.content.substring(0, 250)}...
                     </p>
                     <button class="btn btn-primary" onclick="openModal(${a.id}, '${a.title.replace(/'/g, "\\'")}')">
-                        Назначить рецензента →
+                        РќР°Р·РЅР°С‡РёС‚СЊ СЂРµС†РµРЅР·РµРЅС‚Р° в†’
                     </button>
                 </div>
             `).join('');
         } catch (e) {
-            list.innerHTML = '<p style="color:red;">Ошибка загрузки</p>';
+            list.innerHTML = '<p style="color:red;">РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё</p>';
         }
     }
 
@@ -212,7 +212,7 @@
         currentArticleId = articleId;
         document.getElementById('modalTitle').textContent = title;
         const select = document.getElementById('reviewerSelect');
-        select.innerHTML = '<option>Загрузка...</option>';
+        select.innerHTML = '<option>Р—Р°РіСЂСѓР·РєР°...</option>';
 
         try {
             const reviewers = await getReviewers();
@@ -220,7 +220,7 @@
                 `<option value="${r.id}">${r.name} (${r.email})</option>`
             ).join('');
         } catch (e) {
-            select.innerHTML = '<option>Ошибка загрузки</option>';
+            select.innerHTML = '<option>РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё</option>';
         }
 
         document.getElementById('modal').style.display = 'flex';
@@ -235,11 +235,11 @@
         const reviewerId = document.getElementById('reviewerSelect').value;
         try {
             await assignReviewer(currentArticleId, reviewerId);
-            alert('✅ Рецензент назначен! Данные автора скрыты.');
+            alert('вњ… Р РµС†РµРЅР·РµРЅС‚ РЅР°Р·РЅР°С‡РµРЅ! Р”Р°РЅРЅС‹Рµ Р°РІС‚РѕСЂР° СЃРєСЂС‹С‚С‹.');
             closeModal();
             loadPendingArticles();
         } catch (e) {
-            alert('Ошибка: ' + e.message);
+            alert('РћС€РёР±РєР°: ' + e.message);
         }
     }
 

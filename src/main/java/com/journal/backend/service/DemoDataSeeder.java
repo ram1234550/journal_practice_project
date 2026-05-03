@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 public class DemoDataSeeder implements CommandLineRunner {
@@ -38,9 +39,10 @@ public class DemoDataSeeder implements CommandLineRunner {
             return;
         }
 
-        User admin = ensureUser("Editor Admin", "admin@journal.local", "admin123", "ADMIN");
-        User reviewer = ensureUser("Rina Reviewer", "reviewer@journal.local", "reviewer123", "REVIEWER");
-        User author = ensureUser("Aidar Author", "author@journal.local", "author123", "AUTHOR");
+        User admin = ensureUser("Editor Admin", "admin@journal.local", "admin123", List.of("ADMIN"));
+        User chair = ensureUser("Chair Dana", "chair@journal.local", "chair123", List.of("CHAIR", "AUTHOR"));
+        User reviewer = ensureUser("Rina Reviewer", "reviewer@journal.local", "reviewer123", List.of("REVIEWER"));
+        User author = ensureUser("Aidar Author", "author@journal.local", "author123", List.of("AUTHOR"));
 
         if (articleRepository.count() > 0) {
             return;
@@ -50,17 +52,37 @@ public class DemoDataSeeder implements CommandLineRunner {
                 author,
                 reviewer,
                 "Peer Review for Practical Journals",
-                "Editorial Workflow",
+                "Technology",
                 "This sample article demonstrates a published item inside the MVP journal. It exists so the public catalog is not empty on first run.",
                 "PUBLISHED",
                 10
         );
 
         createArticle(
+                chair,
+                reviewer,
+                "Nutrition Signals in Clinical Studies",
+                "Medicine",
+                "This sample article adds a second published topic so the public catalog filter can be demonstrated immediately.",
+                "PUBLISHED",
+                8
+        );
+
+        createArticle(
                 author,
+                reviewer,
+                "Training Load Metrics for Team Sports",
+                "Sport",
+                "This sample article adds a third published topic for a quick visible topic filter in the public catalog.",
+                "PUBLISHED",
+                6
+        );
+
+        createArticle(
+                admin,
                 null,
                 "Building a Lightweight Journal Platform",
-                "Software Engineering",
+                "Science",
                 "This article is waiting for an editor to assign a reviewer. It is useful for demonstrating the admin dashboard on a fresh deployment.",
                 "PENDING",
                 5
@@ -90,13 +112,13 @@ public class DemoDataSeeder implements CommandLineRunner {
         createReview(revision, reviewer, "REVISION", "Please clarify the evaluation criteria and strengthen the conclusion.");
     }
 
-    private User ensureUser(String name, String email, String rawPassword, String role) {
+    private User ensureUser(String name, String email, String rawPassword, List<String> roles) {
         return userRepository.findByEmail(email).orElseGet(() -> {
             User user = new User();
             user.setName(name);
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(rawPassword));
-            user.setRole(role);
+            user.setRoles(roles);
             user.setCreatedAt(LocalDateTime.now());
             return userRepository.save(user);
         });

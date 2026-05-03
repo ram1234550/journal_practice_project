@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,6 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
         }
-
         .login-box {
             background: white;
             padding: 2.5rem;
@@ -22,45 +21,16 @@
             max-width: 420px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        .login-box h1 {
-            text-align: center;
-            color: #1a1a2e;
-            margin-bottom: 0.3rem;
-        }
-
-        .login-box .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-
-        .login-box .logo {
-            text-align: center;
-            font-size: 2rem;
-            color: #e94560;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 1.2rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .register-link a {
-            color: #e94560;
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .login-box h1 { text-align: center; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .login-box .subtitle { text-align: center; color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
+        .login-box .logo { text-align: center; font-size: 2rem; color: #e94560; font-weight: 800; margin-bottom: 0.5rem; }
+        .register-link { text-align: center; margin-top: 1.2rem; color: #666; font-size: 0.9rem; }
+        .register-link a { color: #e94560; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 <div class="login-box">
-    <div class="logo">📰 Journal</div>
+    <div class="logo">Journal</div>
     <h1>Добро пожаловать</h1>
     <p class="subtitle">Войдите в свой аккаунт</p>
 
@@ -76,9 +46,7 @@
         <input type="password" id="password" placeholder="••••••••">
     </div>
 
-    <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">
-        Войти
-    </button>
+    <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">Войти</button>
 
     <p class="register-link">
         Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
@@ -101,22 +69,18 @@
 
         try {
             const data = await login(email, password);
+            const roles = data.roles || [data.role];
+            saveAuth(data.token, data.role, data.name, data.id, roles);
 
-            // Сохраняем токен и данные
-            saveAuth(data.token, data.role, data.name, data.id);
-
-            // Перенаправляем в зависимости от роли
-            if (data.role === 'ADMIN')    window.location.href = 'admin/dashboard.html';
-            else if (data.role === 'REVIEWER') window.location.href = 'reviewer/dashboard.html';
+            if (roles.includes('ADMIN') || roles.includes('CHAIR')) window.location.href = 'admin/dashboard.html';
+            else if (roles.includes('REVIEWER')) window.location.href = 'reviewer/dashboard.html';
             else window.location.href = 'author/dashboard.html';
-
         } catch (e) {
             errorMsg.textContent = e.message;
             errorMsg.style.display = 'block';
         }
     }
 
-    // Войти по Enter
     document.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleLogin();
     });

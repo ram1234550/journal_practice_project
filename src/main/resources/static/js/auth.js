@@ -1,28 +1,29 @@
-// Сохранить данные после логина
-function saveAuth(token, role, name, id) {
+﻿function saveAuth(token, role, name, id, roles) {
     localStorage.setItem('token', token);
     localStorage.setItem('role', role);
+    localStorage.setItem('roles', JSON.stringify(roles || [role]));
     localStorage.setItem('name', name);
     localStorage.setItem('userId', id);
 }
 
-// Выйти из аккаунта
 function logout() {
     localStorage.clear();
     window.location.href = '../login.html';
 }
 
-// Проверить что пользователь залогинен — если нет, редирект на логин
 function requireAuth(expectedRole) {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
+    const roles = JSON.parse(localStorage.getItem('roles') || JSON.stringify(role ? [role] : []));
 
     if (!token) {
         window.location.href = '../login.html';
         return false;
     }
 
-    if (expectedRole && role !== expectedRole) {
+    const allowedRoles = Array.isArray(expectedRole) ? expectedRole : [expectedRole];
+
+    if (expectedRole && !allowedRoles.some(value => roles.includes(value))) {
         alert('У вас нет доступа к этой странице');
         window.location.href = '../login.html';
         return false;
@@ -31,7 +32,6 @@ function requireAuth(expectedRole) {
     return true;
 }
 
-// Показать имя пользователя в шапке
 function showUserName() {
     const name = localStorage.getItem('name');
     const el = document.getElementById('userName');

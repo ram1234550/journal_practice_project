@@ -1,20 +1,24 @@
 package com.journal.backend.dto;
 
+import java.util.List;
+
 public class UserSummaryDTO {
 
     private Long id;
     private String name;
     private String email;
     private String role;
+    private List<String> roles;
 
     public UserSummaryDTO() {
     }
 
-    public UserSummaryDTO(Long id, String name, String email, String role) {
+    public UserSummaryDTO(Long id, String name, String email, String role, List<String> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.role = role;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -47,5 +51,13 @@ public class UserSummaryDTO {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }

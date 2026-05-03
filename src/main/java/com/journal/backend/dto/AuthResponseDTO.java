@@ -1,18 +1,22 @@
 package com.journal.backend.dto;
 
+import java.util.List;
+
 public class AuthResponseDTO {
 
     private String token;
     private String role;
+    private List<String> roles;
     private String name;
     private String id;
 
     public AuthResponseDTO() {
     }
 
-    public AuthResponseDTO(String token, String role, String name, String id) {
+    public AuthResponseDTO(String token, String role, List<String> roles, String name, String id) {
         this.token = token;
         this.role = role;
+        this.roles = roles;
         this.name = name;
         this.id = id;
     }
@@ -31,6 +35,14 @@ public class AuthResponseDTO {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public String getName() {

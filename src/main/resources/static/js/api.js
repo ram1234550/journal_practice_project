@@ -1,4 +1,4 @@
-const API_URL = `${window.location.origin}/api`;
+﻿const API_URL = `${window.location.origin}/api`;
 
 function getToken() {
     return localStorage.getItem('token');
@@ -121,8 +121,13 @@ async function submitReview(articleId, verdict, comment) {
     return parseResponse(res, 'Ошибка отправки рецензии');
 }
 
-async function getPublishedArticles() {
-    const res = await fetch(`${API_URL}/articles/published`);
+async function getPublishedArticles(topic) {
+    const url = new URL(`${API_URL}/articles/published`);
+    if (topic) {
+        url.searchParams.set('topic', topic);
+    }
+
+    const res = await fetch(url);
     return parseResponse(res, 'Ошибка загрузки статей');
 }
 

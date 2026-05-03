@@ -1,40 +1,38 @@
 package com.journal.backend.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
 
-    // Берём секретный ключ из application.properties
     @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // Генерируем ключ из строки
     private Key getKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // Создать токен — вызывается при логине
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, List<String> roles) {
         return Jwts.builder()
-                .setSubject(email)            // в токен записываем email
-                .claim("role", role)          // и роль пользователя
-                .setIssuedAt(new Date())      // когда создан
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // когда истекает
-                .signWith(getKey())           // подписываем ключом
+                .setSubject(email)
+                .claim("roles", roles)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getKey())
                 .compact();
     }
 
-    // Достать email из токена
     public String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
@@ -44,17 +42,27 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    // Достать роль из токена
     public String extractRole(String token) {
-        return (String) Jwts.parserBuilder()
+        return extractRoles(token).stream().findFirst().orElse(null);
+    }
+
+    public List<String> extractRoles(String token) {
+        Object roles = Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("role");
+                .get("roles");
+
+        if (roles instanceof List<?> roleList) {
+            return roleList.stream()
+                    .map(String::valueOf)
+                    .toList();
+        }
+
+        return List.of();
     }
 
-    // Проверить что токен не истёк и подпись верная
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -63,7 +71,7 @@ public class JwtUtil {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
-            return false;  // токен неверный или истёк
+            return false;
         }
     }
 }
