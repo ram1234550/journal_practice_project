@@ -1,56 +1,41 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход — Journal</title>
+    <title>Вход - Journal</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        }
-        .login-box {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .login-box h1 { text-align: center; color: #1a1a2e; margin-bottom: 0.3rem; }
-        .login-box .subtitle { text-align: center; color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
-        .login-box .logo { text-align: center; font-size: 2rem; color: #e94560; font-weight: 800; margin-bottom: 0.5rem; }
-        .register-link { text-align: center; margin-top: 1.2rem; color: #666; font-size: 0.9rem; }
-        .register-link a { color: #e94560; text-decoration: none; font-weight: 600; }
-    </style>
 </head>
-<body>
-<div class="login-box">
-    <div class="logo">Journal</div>
-    <h1>Добро пожаловать</h1>
-    <p class="subtitle">Войдите в свой аккаунт</p>
+<body class="auth-shell">
+<div class="auth-card">
+    <div class="auth-brand">
+        <div class="brand-mark">JR</div>
+        <div>
+            <div class="user-name">Journal</div>
+            <div class="user-role">Редакционная платформа</div>
+        </div>
+    </div>
+
+    <h1 class="auth-title">Вход в систему</h1>
+    <p class="auth-subtitle">Автор, рецензент, председатель и администратор работают в одном аккуратном потоке.</p>
 
     <div id="errorMsg" class="alert alert-error" style="display:none;"></div>
 
     <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="email" placeholder="your@email.com">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="name@example.com">
     </div>
 
     <div class="form-group">
-        <label>Пароль</label>
-        <input type="password" id="password" placeholder="••••••••">
+        <label for="password">Пароль</label>
+        <input type="password" id="password" placeholder="Введите пароль">
     </div>
 
     <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">Войти</button>
 
-    <p class="register-link">
+    <div class="auth-footer">
         Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
-    </p>
+    </div>
 </div>
 
 <script src="js/api.js"></script>

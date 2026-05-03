@@ -3,90 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кабинет рецензента — Journal</title>
+    <title>Кабинет рецензента - Journal</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { background: #f0f2f5; }
-        .top-nav { background: #1a1a2e; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; height: 60px; position: sticky; top: 0; z-index: 100; }
-        .top-nav .logo { color: #e94560; font-size: 1.3rem; font-weight: 800; text-decoration: none; }
-        .top-nav .user-info { color: #ccc; font-size: 0.9rem; display: flex; align-items: center; gap: 1rem; }
-        .top-nav .logout-btn { color: #e94560; cursor: pointer; font-weight: 600; background: none; border: none; font-size: 0.9rem; }
-        .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 60px); }
-        .sidebar { background: #1a1a2e; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
-        .sidebar .user-block { text-align: center; padding-bottom: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar .avatar { width: 56px; height: 56px; border-radius: 50%; background: #3b82f6; color: white; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
-        .sidebar .user-name { color: white; font-weight: 600; font-size: 0.95rem; }
-        .sidebar .user-role { color: #60a5fa; font-size: 0.8rem; margin-top: 0.2rem; font-weight: 600; }
-        .sidebar .menu-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 1rem; color: #aaa; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; background: none; width: 100%; font-size: 0.9rem; transition: all 0.2s; }
-        .sidebar .menu-item:hover { background: rgba(255,255,255,0.08); color: white; }
-        .sidebar .menu-item.active { background: #3b82f6; color: white; }
-        .sidebar .menu-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
-        .sidebar .logout-item { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
-        .sidebar .logout-item .menu-item { color: #e94560; }
-        .sidebar .logout-item .menu-item:hover { background: rgba(233,69,96,0.15); }
-        .main { padding: 2rem; overflow-y: auto; }
-        .main h2 { color: #1a1a2e; margin-bottom: 0.5rem; font-size: 1.4rem; }
-        .blind-notice { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; color: #1e40af; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; }
-        .article-item { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 1.2rem; border-left: 4px solid #3b82f6; }
-        .article-item h3 { color: #1a1a2e; font-size: 1.05rem; margin-bottom: 0.4rem; }
-        .topic-tag { background: #eff6ff; color: #1e40af; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.8rem; }
-        .content-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; color: #334155; line-height: 1.7; font-size: 0.92rem; max-height: 200px; overflow-y: auto; }
-        .review-section { border-top: 1px solid #f0f0f0; padding-top: 1.2rem; }
-        .review-section label { display: block; font-weight: 600; color: #333; font-size: 0.9rem; margin-bottom: 0.5rem; }
-        .review-section textarea { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.92rem; font-family: inherit; min-height: 110px; resize: vertical; transition: border-color 0.2s; }
-        .review-section textarea:focus { outline: none; border-color: #3b82f6; }
-        .verdict-btns { display: flex; gap: 1rem; margin-top: 0.8rem; }
-        .btn { padding: 0.65rem 1.4rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
-        .btn-accept { background: #22c55e; color: white; }
-        .btn-accept:hover { background: #16a34a; transform: translateY(-1px); }
-        .btn-revision { background: #f59e0b; color: white; }
-        .btn-revision:hover { background: #d97706; transform: translateY(-1px); }
-        .empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
-        .badge-count { background: #e94560; color: white; border-radius: 20px; padding: 0.1rem 0.5rem; font-size: 0.75rem; font-weight: 700; }
-    </style>
 </head>
-<body>
-
-<nav class="top-nav">
-    <a href="../published.html" class="logo">📰 Journal</a>
-    <div class="user-info">
-        Привет, <span id="userName" style="color:white; font-weight:600;"></span>
-        <button class="logout-btn" onclick="logout()">Выйти</button>
-    </div>
-</nav>
-
-<div class="layout">
-    <div class="sidebar">
-        <div class="user-block">
-            <div class="avatar" id="avatarLetter">Р</div>
-            <div class="user-name" id="sidebarName"></div>
-            <div class="user-role">🔍 Рецензент</div>
-        </div>
-
-        <button class="menu-item active" id="btn-articles">
-            <span class="icon">📋</span>
-            <span>Мои статьи</span>
-            <span class="badge-count" id="articleCount" style="display:none;"></span>
-        </button>
-        <a href="../published.html" class="menu-item">
-            <span class="icon">🌐</span> Все публикации
+<body class="dashboard">
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a href="../published.html" class="brand">
+            <div class="brand-mark">JR</div>
+            <span>Journal</span>
         </a>
-
-        <div class="logout-item">
-            <button class="menu-item" onclick="logout()">
-                <span class="icon">🚪</span> Выйти
-            </button>
-        </div>
+        <nav class="nav-links">
+            <span class="nav-link">Пользователь: <strong id="userName"></strong></span>
+            <button class="btn btn-secondary" onclick="logout()">Выйти</button>
+        </nav>
     </div>
+</header>
 
-    <div class="main">
-        <h2>📋 Статьи для рецензирования</h2>
-        <div class="blind-notice">
-            🔒 Слепое рецензирование — данные автора скрыты для объективной оценки
+<div class="dashboard-shell">
+    <aside class="panel sidebar-panel">
+        <div class="user-card">
+            <div class="user-avatar" id="avatarLetter"></div>
+            <div class="user-name" id="sidebarName"></div>
+            <div class="user-role">Рецензент</div>
         </div>
-        <div id="reviewList"><p style="color:#888;">Загрузка...</p></div>
-    </div>
+
+        <div class="menu">
+            <button class="menu-item active">Мои статьи</button>
+            <a href="../published.html" class="menu-item">Опубликованные статьи</a>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="panel notice-box" style="margin:0;">
+            Слепое рецензирование: сведения об авторе скрыты, чтобы оценка оставалась нейтральной.
+        </section>
+
+        <section>
+            <div class="section-title">Статьи на рецензии</div>
+            <div class="section-subtitle">Оцените материал и выберите дальнейший шаг.</div>
+            <div id="reviewList" class="list">
+                <div class="panel empty-state">Загрузка...</div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="../js/api.js"></script>
@@ -95,7 +55,7 @@
     requireAuth('REVIEWER');
     showUserName();
 
-    const name = localStorage.getItem('name') || 'Р';
+    const name = localStorage.getItem('name') || 'R';
     document.getElementById('sidebarName').textContent = name;
     document.getElementById('avatarLetter').textContent = name[0].toUpperCase();
 
@@ -105,46 +65,30 @@
         try {
             const articles = await getArticlesForReviewer();
 
-            // Показываем счётчик в меню
-            if (articles.length > 0) {
-                const counter = document.getElementById('articleCount');
-                counter.textContent = articles.length;
-                counter.style.display = 'inline-block';
-            }
-
             if (articles.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">✅</div>
-                        <p>Нет статей для рецензирования</p>
-                        <p style="font-size:0.85rem; margin-top:0.5rem;">Новые статьи появятся когда администратор назначит вас</p>
-                    </div>`;
+                list.innerHTML = '<div class="panel empty-state"><h3>Нет активных назначений</h3><p>Новые статьи появятся здесь после назначения.</p></div>';
                 return;
             }
 
             list.innerHTML = articles.map(a => `
-                <div class="article-item">
-                    <span class="topic-tag">🏷️ ${a.topic || 'Без темы'}</span>
-                    <h3>${a.title}</h3>
+                <article class="panel list-item">
+                    <span class="topic-tag">${a.topic || 'Без темы'}</span>
+                    <div class="item-title">${a.title}</div>
+                    <p class="item-text">${a.content}</p>
 
-                    <div class="content-box">${a.content}</div>
-
-                    <div class="review-section">
-                        <label>Ваш комментарий к статье</label>
-                        <textarea id="comment_${a.id}" placeholder="Напишите замечания, предложения или обоснование решения..."></textarea>
-                        <div class="verdict-btns">
-                            <button class="btn btn-accept" onclick="handleVerdict(${a.id}, 'ACCEPTED')">
-                                ✅ Принять статью
-                            </button>
-                            <button class="btn btn-revision" onclick="handleVerdict(${a.id}, 'REVISION')">
-                                ✏️ На доработку
-                            </button>
-                        </div>
+                    <div class="form-group" style="margin-top:18px;">
+                        <label for="comment_${a.id}">Комментарий рецензента</label>
+                        <textarea id="comment_${a.id}" placeholder="Опишите замечания и рекомендации"></textarea>
                     </div>
-                </div>
+
+                    <div class="review-actions">
+                        <button class="btn btn-success" onclick="handleVerdict(${a.id}, 'ACCEPTED')">Принять</button>
+                        <button class="btn btn-warning" onclick="handleVerdict(${a.id}, 'REVISION')">На доработку</button>
+                    </div>
+                </article>
             `).join('');
         } catch (e) {
-            list.innerHTML = '<p style="color:red;">Ошибка загрузки</p>';
+            list.innerHTML = '<div class="panel empty-state"><h3>Ошибка</h3><p>Не удалось загрузить статьи для рецензии.</p></div>';
         }
     }
 
@@ -152,20 +96,12 @@
         const comment = document.getElementById(`comment_${articleId}`).value;
 
         if (!comment.trim()) {
-            alert('⚠️ Напишите комментарий перед отправкой решения');
+            alert('Добавьте комментарий перед отправкой решения.');
             return;
         }
 
-        const action = verdict === 'ACCEPTED' ? 'принять и опубликовать' : 'отправить на доработку';
-        if (!confirm(`Вы уверены что хотите ${action} эту статью?`)) return;
-
         try {
             await submitReview(articleId, verdict, comment);
-            if (verdict === 'ACCEPTED') {
-                alert('✅ Статья принята и опубликована!');
-            } else {
-                alert('✏️ Статья отправлена автору на доработку');
-            }
             loadArticles();
         } catch (e) {
             alert('Ошибка: ' + e.message);

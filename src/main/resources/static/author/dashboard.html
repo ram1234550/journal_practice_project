@@ -3,222 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кабинет автора — Journal</title>
+    <title>Кабинет автора - Journal</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { background: #f0f2f5; }
-
-        .top-nav {
-            background: #1a1a2e;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .top-nav .logo { color: #e94560; font-size: 1.3rem; font-weight: 800; text-decoration: none; }
-        .top-nav .user-info { color: #ccc; font-size: 0.9rem; display: flex; align-items: center; gap: 1rem; }
-        .top-nav .logout-btn { color: #e94560; cursor: pointer; font-weight: 600; background: none; border: none; font-size: 0.9rem; }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 220px 1fr;
-            min-height: calc(100vh - 60px);
-        }
-
-        .sidebar {
-            background: #1a1a2e;
-            padding: 2rem 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .sidebar .user-block {
-            text-align: center;
-            padding-bottom: 1.5rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar .avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #e94560;
-            color: white;
-            font-size: 1.4rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.7rem;
-        }
-
-        .sidebar .user-name { color: white; font-weight: 600; font-size: 0.95rem; }
-        .sidebar .user-role { color: #888; font-size: 0.8rem; margin-top: 0.2rem; }
-
-        .sidebar .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.75rem 1rem;
-            color: #aaa;
-            text-decoration: none;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .sidebar .menu-item:hover { background: rgba(255,255,255,0.08); color: white; }
-        .sidebar .menu-item.active { background: #e94560; color: white; }
-
-        .sidebar .menu-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
-
-        .sidebar .logout-item {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar .logout-item .menu-item { color: #e94560; }
-        .sidebar .logout-item .menu-item:hover { background: rgba(233,69,96,0.15); }
-
-        .main {
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .main h2 { color: #1a1a2e; margin-bottom: 1.5rem; font-size: 1.4rem; }
-
-        .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 1rem; }
-
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #333; font-size: 0.9rem; }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 0.75rem 1rem; border: 2px solid #e0e0e0;
-            border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;
-        }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #e94560; }
-        .form-group textarea { min-height: 180px; resize: vertical; }
-
-        .btn { padding: 0.65rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
-        .btn-primary { background: #e94560; color: white; }
-        .btn-primary:hover { background: #c73652; transform: translateY(-1px); }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-success:hover { background: #219a52; }
-
-        .alert { padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
-        .alert-success { background: #dcfce7; color: #166534; }
-
-        .article-item {
-            background: white;
-            border-radius: 12px;
-            padding: 1.2rem 1.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            margin-bottom: 1rem;
-            border-left: 4px solid #e0e0e0;
-        }
-
-        .article-item.pending { border-left-color: #f59e0b; }
-        .article-item.under_review { border-left-color: #3b82f6; }
-        .article-item.published { border-left-color: #22c55e; }
-        .article-item.revision { border-left-color: #e94560; }
-
-        .article-item-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
-        .article-item h3 { color: #1a1a2e; font-size: 1rem; }
-
-        .badge { padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-review { background: #dbeafe; color: #1e40af; }
-        .badge-published { background: #dcfce7; color: #166534; }
-        .badge-revision { background: #fee2e2; color: #991b1b; }
-
-        .revision-box { background: #fff5f7; border: 1px solid #fecdd3; border-radius: 8px; padding: 1rem; margin-top: 0.8rem; }
-        .revision-box p { color: #e94560; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.7rem; }
-    </style>
 </head>
-<body>
-
-<!-- Навигация -->
-<nav class="top-nav">
-    <a href="../published.html" class="logo">📰 Journal</a>
-    <div class="user-info">
-        Привет, <span id="userName" style="color:white; font-weight:600;"></span>
-        <button class="logout-btn" onclick="logout()">Выйти</button>
+<body class="dashboard">
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a href="../published.html" class="brand">
+            <div class="brand-mark">JR</div>
+            <span>Journal</span>
+        </a>
+        <nav class="nav-links">
+            <span class="nav-link">Пользователь: <strong id="userName"></strong></span>
+            <button class="btn btn-secondary" onclick="logout()">Выйти</button>
+        </nav>
     </div>
-</nav>
+</header>
 
-<div class="layout">
-
-    <!-- Сайдбар -->
-    <div class="sidebar">
-        <div class="user-block">
-            <div class="avatar" id="avatarLetter"></div>
+<div class="dashboard-shell">
+    <aside class="panel sidebar-panel">
+        <div class="user-card">
+            <div class="user-avatar" id="avatarLetter"></div>
             <div class="user-name" id="sidebarName"></div>
             <div class="user-role">Автор</div>
         </div>
 
-        <button class="menu-item active" id="btn-new" onclick="showSection('newArticle')">
-            <span class="icon">✏️</span> Написать статью
-        </button>
-        <button class="menu-item" id="btn-my" onclick="showSection('myArticles')">
-            <span class="icon">📄</span> Мои статьи
-        </button>
-        <a href="../published.html" class="menu-item">
-            <span class="icon">🌐</span> Все публикации
-        </a>
-
-        <div class="logout-item">
-            <button class="menu-item" onclick="logout()">
-                <span class="icon">🚪</span> Выйти
-            </button>
+        <div class="menu">
+            <button class="menu-item active" id="btn-new" onclick="showSection('newArticle')">Новая статья</button>
+            <button class="menu-item" id="btn-my" onclick="showSection('myArticles')">Мои статьи</button>
+            <a href="../published.html" class="menu-item">Опубликованные статьи</a>
         </div>
-    </div>
+    </aside>
 
-    <!-- Основной контент -->
-    <div class="main">
+    <main class="dashboard-main">
+        <section id="newArticle" class="panel">
+            <div class="section-title">Новая статья</div>
+            <div class="section-subtitle">Короткая форма подачи без лишней перегрузки.</div>
+            <div id="articleError" class="alert alert-error" style="display:none;"></div>
+            <div id="articleSuccess" class="alert alert-success" style="display:none;"></div>
 
-        <!-- Написать статью -->
-        <div id="newArticle">
-            <h2>✏️ Написать новую статью</h2>
-            <div class="card">
-                <div id="articleError" class="alert alert-error" style="display:none;"></div>
-                <div id="articleSuccess" class="alert alert-success" style="display:none;"></div>
-                <div class="form-group">
-                    <label>Заголовок статьи</label>
-                    <input type="text" id="title" placeholder="Введите заголовок">
-                </div>
-                <div class="form-group">
-                    <label>Тема / направление</label>
-                    <input type="text" id="topic" placeholder="Например: Информатика, Медицина...">
-                </div>
-                <div class="form-group">
-                    <label>Текст статьи</label>
-                    <textarea id="content" placeholder="Напишите вашу статью здесь..."></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="handleCreateArticle()">
-                    Отправить на проверку →
-                </button>
+            <div class="form-group">
+                <label for="title">Заголовок</label>
+                <input type="text" id="title" placeholder="Введите заголовок статьи">
             </div>
-        </div>
 
-        <!-- Мои статьи -->
-        <div id="myArticles" style="display:none;">
-            <h2>📄 Мои статьи</h2>
-            <div id="articlesList"><p style="color:#888;">Загрузка...</p></div>
-        </div>
+            <div class="form-group">
+                <label for="topic">Тема</label>
+                <input type="text" id="topic" placeholder="Например: Technology, Science, Medicine">
+            </div>
 
-    </div>
+            <div class="form-group">
+                <label for="content">Текст статьи</label>
+                <textarea id="content" placeholder="Опишите материал статьи"></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="handleCreateArticle()">Отправить на проверку</button>
+        </section>
+
+        <section id="myArticles" class="panel" style="display:none;">
+            <div class="section-title">Мои статьи</div>
+            <div class="section-subtitle">Текущий статус и возврат на доработку в одном списке.</div>
+            <div id="articlesList" class="list">
+                <div class="empty-state">Загрузка...</div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="../js/api.js"></script>
@@ -227,20 +76,16 @@
     requireAuth('AUTHOR');
     showUserName();
 
-    const name = localStorage.getItem('name') || 'А';
+    const name = localStorage.getItem('name') || 'A';
     document.getElementById('sidebarName').textContent = name;
     document.getElementById('avatarLetter').textContent = name[0].toUpperCase();
 
     function showSection(section) {
-        // Скрываем все секции
         document.getElementById('newArticle').style.display = 'none';
         document.getElementById('myArticles').style.display = 'none';
-
-        // Убираем active со всех кнопок
         document.getElementById('btn-new').classList.remove('active');
         document.getElementById('btn-my').classList.remove('active');
 
-        // Показываем нужную
         document.getElementById(section).style.display = 'block';
         document.getElementById('btn-' + (section === 'newArticle' ? 'new' : 'my')).classList.add('active');
 
@@ -265,7 +110,7 @@
 
         try {
             await createArticle(title, topic, content);
-            suc.textContent = '✅ Статья отправлена на проверку администратору!';
+            suc.textContent = 'Статья отправлена на проверку.';
             suc.style.display = 'block';
             document.getElementById('title').value = '';
             document.getElementById('topic').value = '';
@@ -283,34 +128,33 @@
             const articles = await getMyArticles();
 
             if (articles.length === 0) {
-                list.innerHTML = '<div class="card"><p style="color:#888; text-align:center;">У вас пока нет статей</p></div>';
+                list.innerHTML = '<div class="empty-state"><h3>Пока пусто</h3><p>У вас ещё нет отправленных статей.</p></div>';
                 return;
             }
 
             list.innerHTML = articles.map(a => `
-                <div class="article-item ${a.status.toLowerCase()}">
-                    <div class="article-item-header">
-                        <h3>${a.title}</h3>
+                <article class="panel list-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${a.title}</div>
+                            <div class="item-meta">Тема: ${a.topic || 'не указана'}</div>
+                        </div>
                         <span class="badge ${getBadgeClass(a.status)}">${getStatusText(a.status)}</span>
                     </div>
-                    <p style="color:#888; font-size:0.85rem; margin-bottom:0.3rem;">Тема: ${a.topic || 'не указана'}</p>
-                    <p style="color:#555; font-size:0.9rem;">${a.content.substring(0, 150)}...</p>
-
+                    <p class="item-text">${a.content.substring(0, 180)}...</p>
                     ${a.status === 'REVISION' ? `
                         <div class="revision-box">
-                            <p>⚠️ Требуется доработка — отредактируй текст и отправь снова</p>
-                            <div class="form-group" style="margin-bottom:0.7rem;">
+                            <div class="item-meta" style="margin-bottom:10px;">Статья возвращена на доработку.</div>
+                            <div class="form-group" style="margin-bottom:12px;">
                                 <textarea id="revision_${a.id}" style="min-height:120px;">${a.content}</textarea>
                             </div>
-                            <button class="btn btn-success" onclick="handleResubmit(${a.id})">
-                                Отправить доработку →
-                            </button>
+                            <button class="btn btn-success" onclick="handleResubmit(${a.id})">Отправить доработку</button>
                         </div>
                     ` : ''}
-                </div>
+                </article>
             `).join('');
         } catch (e) {
-            list.innerHTML = '<p style="color:red;">Ошибка загрузки статей</p>';
+            list.innerHTML = '<div class="empty-state"><h3>Ошибка</h3><p>Не удалось загрузить список статей.</p></div>';
         }
     }
 
@@ -318,7 +162,7 @@
         const content = document.getElementById(`revision_${articleId}`).value;
         try {
             await resubmitArticle(articleId, content);
-            alert('✅ Доработка отправлена!');
+            alert('Доработка отправлена.');
             loadMyArticles();
         } catch (e) {
             alert('Ошибка: ' + e.message);
@@ -331,7 +175,7 @@
     }
 
     function getStatusText(status) {
-        const map = { 'PENDING': '⏳ У админа', 'UNDER_REVIEW': '🔍 На рецензии', 'PUBLISHED': '✅ Опубликована', 'REVISION': '✏️ На доработке' };
+        const map = { 'PENDING': 'Ожидает проверки', 'UNDER_REVIEW': 'На рецензии', 'PUBLISHED': 'Опубликована', 'REVISION': 'Доработка' };
         return map[status] || status;
     }
 </script>
